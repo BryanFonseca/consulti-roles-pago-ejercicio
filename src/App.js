@@ -10,14 +10,15 @@ import Me from "./pages/Me";
 import Layout from "./components/Layout";
 
 function App() {
-  const { userInfo } = useContext(AppContext);
+  const { userInfo, isLoggedIn } = useContext(AppContext);
   return (
     <Switch>
       <Route path="/" exact>
         {/* if not logged in, go to the login page */}
       </Route>
       <Route path="/login">
-        <Login />
+        {!isLoggedIn && <Login />}
+        {isLoggedIn && <Redirect to="/roles-pago" />}
       </Route>
       <Layout>
         <Route path="/roles-pago">

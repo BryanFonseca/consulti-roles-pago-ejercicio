@@ -1,9 +1,16 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import { useContext } from "react";
 import AppContext from "../context/app-context";
 
 const Header = () => {
-  const { userInfo } = useContext(AppContext);
+  const { userInfo, setIsLoggedIn } = useContext(AppContext);
+  const history = useHistory();
+
+  const onCerrarSesionHandler = () => {
+    setIsLoggedIn(false);
+    history.replace("/login");
+  };
+
   return (
     <header>
       <nav>
@@ -20,6 +27,7 @@ const Header = () => {
           </li>
         </ul>
       </nav>
+      <button onClick={onCerrarSesionHandler}>Cerrar sesión</button>
     </header>
   );
 };

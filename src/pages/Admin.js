@@ -16,7 +16,7 @@ const Admin = () => {
       <p>Lista de todos los roles de pago</p>
       <button onClick={addRolPagoHandler}>Añadir Rol de Pago</button>
       <Route path="/roles-pago/add">
-        <p>AGREGAR ROL DE PAGO</p>
+        <form>Add Rol de pago Form</form>
       </Route>
     </div>
   );
