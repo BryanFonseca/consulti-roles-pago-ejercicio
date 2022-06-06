@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 // autocompletion help
 const AppContext = createContext({});
@@ -18,6 +18,10 @@ export const AppContextProvider = (props) => {
       ...newUserInfo,
     });
   };
+
+  useEffect(() => {
+    // comprobar en local storage si hay datos de sesión
+  });
 
   return (
     <AppContext.Provider
