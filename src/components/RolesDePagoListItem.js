@@ -2,15 +2,15 @@ const RolesDePagoListItem = (props) => {
   return (
     <li>
       {props.nombreEmpleado ? <p>{props.nombreEmpleado}</p> : null}
-      <p>{props.desde}</p>
-      <p>{props.hasta}</p>
+      <p>Desde: {props.desde}</p>
+      <p>Hasta: {props.hasta}</p>
       <div>
-        <p>{props.ingresosTotal}</p>
+        <p>Total ingresos: {props.ingresosTotal}</p>
       </div>
       <div>
-        <p>{props.egresosTotal}</p>
+        <p>Total egresos: {props.egresosTotal}</p>
       </div>
-      <p>{props.neto}</p>
+      <p>Neto a pagar: {props.neto}</p>
       <hr />
     </li>
   );
