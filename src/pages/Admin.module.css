@@ -1,0 +1,20 @@
+.rolesPagoContainer {
+  margin-top: 1.2em;
+}
+
+.conceptosContainer input {
+  margin-left: 1em;
+}
+
+.basicContainer input {
+  margin-left: 1em;
+}
+
+.fechasContainer {
+  display: flex;
+  gap: 1em;
+}
+
+.conceptoTitle {
+  margin-top: 0.4em;
+}

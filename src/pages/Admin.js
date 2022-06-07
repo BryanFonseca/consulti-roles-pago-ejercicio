@@ -5,6 +5,7 @@ import { useState, useContext, useEffect, useRef } from "react";
 import RolesDePagoList from "../components/RolesDePagoList";
 import RolesDePagoListItem from "../components/RolesDePagoListItem";
 import AppContext from "../context/app-context";
+import classes from "./Admin.module.css";
 
 const Admin = () => {
   const history = useHistory();
@@ -115,22 +116,24 @@ const Admin = () => {
         Authorization: ctx.userInfo.token,
       },
       body: JSON.stringify(dataToSend),
-    })
-      .then((raw) => raw.json())
-      .then((data) => console.log(data));
+    }).then((raw) => raw.json());
   };
 
   return (
     <div>
-      <p>Lista de todos los roles de pago</p>
       <button onClick={addRolPagoHandler}>Añadir Rol de Pago</button>
       <Route path="/roles-pago/admin/add">
-        <form onSubmit={onAddRolPagoHandler}>
-          <label htmlFor="desde">Desde</label>
-          <input ref={desdeRef} id="desde" type="month" />
-          <label htmlFor="hasta">Hasta</label>
-          <input ref={hastaRef} id="hasta" type="month" />
-
+        <form className={classes.basicContainer} onSubmit={onAddRolPagoHandler}>
+          <div className={classes.fechasContainer}>
+            <div>
+              <label htmlFor="desde">Desde</label>
+              <input ref={desdeRef} id="desde" type="month" />
+            </div>
+            <div>
+              <label htmlFor="hasta">Hasta</label>
+              <input ref={hastaRef} id="hasta" type="month" />
+            </div>
+          </div>
           <select ref={empleadoIdRef}>
             {empleados &&
               empleados.map((empleado) => (
@@ -140,23 +143,44 @@ const Admin = () => {
                 >{`${empleado.primerNombre} ${empleado.primerApellido}`}</option>
               ))}
           </select>
-          <button>Añadir Rol de Pago</button>
+          <button>Añadir</button>
         </form>
-        <p>Conceptos:</p>
-        <form onSubmit={onAddConceptoHandler}>
-          <label htmlFor="nombre-concepto">Nombre</label>
-          <input ref={nombreConceptoRef} id="nombre-concepto" type="text" />
-          <select ref={tipoConceptoRef} name="select">
-            <option value="ingreso">Ingreso</option>
-            <option value="egreso">Egreso</option>
-          </select>
-          <label htmlFor="valor-concepto">Valor</label>
-          <input ref={valorConceptoRef} id="valor-concepto" type="number" />
+        <h3 className={classes.conceptoTitle}>Conceptos:</h3>
+        <form
+          className={classes.conceptosContainer}
+          onSubmit={onAddConceptoHandler}
+        >
+          <div>
+            <label htmlFor="nombre-concepto">Nombre</label>
+            <input ref={nombreConceptoRef} id="nombre-concepto" type="text" />
+          </div>
+
+          <div>
+            <select ref={tipoConceptoRef} name="select">
+              <option value="ingreso">Ingreso</option>
+              <option value="egreso">Egreso</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="valor-concepto">Valor</label>
+            <input ref={valorConceptoRef} id="valor-concepto" type="number" />
+          </div>
           <button>Agregar Concepto</button>
         </form>
-        <hr />
+        <ul>
+          {conceptosLocales
+            .slice(0)
+            .reverse()
+            .map((concepto) => (
+              <li>{concepto.nombre}</li>
+            ))}
+        </ul>
       </Route>
-      <RolesDePagoList>{rolesPagoItems}</RolesDePagoList>
+      <div className={classes.rolesPagoContainer}>
+        <h2>Roles de Pago:</h2>
+        <RolesDePagoList>{rolesPagoItems}</RolesDePagoList>
+      </div>
     </div>
   );
 };

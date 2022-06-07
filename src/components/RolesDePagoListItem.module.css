@@ -1,0 +1,13 @@
+.item > * + * {
+  margin-top: 0.4em;
+}
+
+.fechasContainer,
+.totalesContainer {
+  display: flex;
+  gap: 1em;
+}
+
+.nombre {
+  font-weight: bold;
+}

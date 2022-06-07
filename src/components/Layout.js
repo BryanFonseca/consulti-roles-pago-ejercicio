@@ -1,10 +1,11 @@
 import Header from "./Header";
+import classes from "./Layout.module.css";
 
 const Layout = (props) => {
   return (
-    <article>
+    <article className={classes.layoutContainer}>
       <Header />
-      <main>{props.children}</main>
+      <main className={classes.mainContainer}>{props.children}</main>
     </article>
   );
 };

@@ -2,6 +2,8 @@ import { useHistory } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import AppContext from "../context/app-context";
 
+import classes from "./Login.module.css";
+
 const Login = () => {
   const [userInput, setUserInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
@@ -53,8 +55,8 @@ const Login = () => {
   }, [ctx.isLoggedIn, history]);
 
   return (
-    <main>
-      <form onSubmit={onLoginHandler}>
+    <main className={classes.container}>
+      <form className={classes.loginForm} onSubmit={onLoginHandler}>
         <label htmlFor="user">Usuario</label>
         <input
           onChange={onChangeUserInputHandler}

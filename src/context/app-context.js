@@ -20,6 +20,7 @@ export const AppContextProvider = (props) => {
   };
 
   useEffect(() => {
+    console.log("called");
     // comprobar en local storage si hay datos de sesión
   });
 

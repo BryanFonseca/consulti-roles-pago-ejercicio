@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid grey;
+  padding: 1.4em;
+  border-radius: 0.4em;
+}
+
+.loginForm label + input {
+  margin-bottom: 1em;
+  margin-top: 0.4em;
+}
+
+.loginForm label {
+  width: 100%;
+}
+
+.loginForm button {
+  padding: 0.2em 0.4em;
+}
