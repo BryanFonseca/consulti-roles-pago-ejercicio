@@ -7,15 +7,21 @@ import RolesDePagoListItem from "../components/RolesDePagoListItem";
 import AppContext from "../context/app-context";
 import classes from "./Admin.module.css";
 
+import BasicInfoForm from "../components/BasicInfoForm";
+import ConceptosForm from "../components/ConceptosForm";
+
 const Admin = () => {
   const history = useHistory();
+  const [showForm, setShowForm] = useState(false);
   const [isShownConceptosForm, setIsShownConceptosForm] = useState(true);
   const addRolPagoHandler = () => {
     setIsShownConceptosForm((prev) => !prev);
     if (isShownConceptosForm) {
+      setShowForm(true);
       history.replace("/roles-pago/admin/add");
       return;
     }
+    setShowForm(false);
     history.replace("/roles-pago/admin");
   };
 
@@ -23,7 +29,7 @@ const Admin = () => {
 
   const [rolesPagoItems, setRolesPagoItems] = useState(null);
 
-  useEffect(() => {
+  const updateRolesPago = () => {
     fetch(`http://localhost:8080/roles-pago/all`, {
       method: "GET",
       headers: {
@@ -34,26 +40,24 @@ const Admin = () => {
     }).then((raw) =>
       raw.json().then(({ data: rolesPago }) => {
         console.log(rolesPago);
-        const rolesPagosItemsComponents = rolesPago
-          .slice(0)
-          .reverse()
-          .map((rolPago) => {
-            return (
-              <RolesDePagoListItem
-                key={rolPago.idRolDePago}
-                desde={rolPago.desde}
-                hasta={rolPago.hasta}
-                ingresosTotal={rolPago.ingresos.total}
-                egresosTotal={rolPago.egresos.total}
-                neto={rolPago.netoAPagar}
-                nombreEmpleado={rolPago.nombreEmpleado}
-              />
-            );
-          });
-        setRolesPagoItems(rolesPagosItemsComponents);
+        setRolesPagoItems(
+          rolesPago.reverse().map((rolPago) => {
+            return {
+              id: rolPago.idRolDePago,
+              desde: rolPago.desde,
+              hasta: rolPago.hasta,
+              ingresosTotal: rolPago.ingresos.total,
+              egresosTotal: rolPago.egresos.total,
+              neto: rolPago.netoAPagar,
+              nombreEmpleado: rolPago.nombreEmpleado,
+            };
+          })
+        );
       })
     );
-  }, []);
+  };
+
+  useEffect(updateRolesPago, []);
 
   const [empleados, setEmpleados] = useState(null);
 
@@ -73,40 +77,12 @@ const Admin = () => {
       });
   }, []);
 
-  const nombreConceptoRef = useRef();
-  const tipoConceptoRef = useRef();
-  const valorConceptoRef = useRef();
-  const [conceptosLocales, setConceptos] = useState([]);
-  const onAddConceptoHandler = (e) => {
-    e.preventDefault();
-    console.log(nombreConceptoRef.current.value);
-    console.log(tipoConceptoRef.current.value);
-    console.log(valorConceptoRef.current.value);
-    setConceptos((prev) => [
-      ...prev,
-      {
-        nombre: nombreConceptoRef.current.value,
-        tipo: tipoConceptoRef.current.value,
-        valor: +valorConceptoRef.current.value,
-      },
-    ]);
-    setTimeout(() => {
-      nombreConceptoRef.current.value = "";
-      tipoConceptoRef.current.value = "ingreso";
-      valorConceptoRef.current.value = "";
-    });
-  };
-
-  const empleadoIdRef = useRef();
-  const desdeRef = useRef();
-  const hastaRef = useRef();
-  const onAddRolPagoHandler = (e) => {
-    e.preventDefault();
+  const onAddRolPagoHandler = (empleadoId, desde, hasta) => {
     const dataToSend = {
-      empleadoId: +empleadoIdRef.current.value,
-      desde: desdeRef.current.value + "-01",
-      hasta: hastaRef.current.value + "-01",
-      conceptos: [...conceptosLocales],
+      empleadoId: empleadoId,
+      desde: desde,
+      hasta: hasta,
+      conceptos: [...conceptos],
     };
     fetch("http://localhost:8080/roles-pago/add", {
       method: "POST",
@@ -116,71 +92,80 @@ const Admin = () => {
         Authorization: ctx.userInfo.token,
       },
       body: JSON.stringify(dataToSend),
-    }).then((raw) => raw.json());
+    })
+      .then((raw) => raw.json())
+      .then((data) => {
+        updateRolesPago();
+      });
   };
+
+  const [conceptos, setConceptos] = useState([]);
+
+  const addConcepto = (nombre, tipo, valor) => {
+    setConceptos((prev) => [
+      {
+        nombre: nombre,
+        tipo: tipo,
+        valor: valor,
+      },
+      ...prev,
+    ]);
+  };
+
+  const cancelRef = useRef();
 
   return (
     <div>
-      <button onClick={addRolPagoHandler}>Añadir Rol de Pago</button>
+      <button
+        ref={cancelRef}
+        className={classes.cancelButton}
+        onClick={addRolPagoHandler}
+      >
+        {showForm ? "Cancelar" : "Añadir Rol de Pago"}
+      </button>
       <Route path="/roles-pago/admin/add">
-        <form className={classes.basicContainer} onSubmit={onAddRolPagoHandler}>
-          <div className={classes.fechasContainer}>
-            <div>
-              <label htmlFor="desde">Desde</label>
-              <input ref={desdeRef} id="desde" type="month" />
-            </div>
-            <div>
-              <label htmlFor="hasta">Hasta</label>
-              <input ref={hastaRef} id="hasta" type="month" />
-            </div>
+        <div className={classes.routeContainer}>
+          <div className={classes.formsContainer}>
+            <BasicInfoForm
+              onAddRolPago={onAddRolPagoHandler}
+              empleados={empleados}
+              cancelButton={cancelRef.current}
+            />
+            <ConceptosForm onAddConcepto={addConcepto} />
           </div>
-          <select ref={empleadoIdRef}>
-            {empleados &&
-              empleados.map((empleado) => (
-                <option
-                  key={empleado.idEmpleado}
-                  value={empleado.idEmpleado}
-                >{`${empleado.primerNombre} ${empleado.primerApellido}`}</option>
+          <div className={classes.conceptosContainer}>
+            <p>Conceptos:</p>
+            <ul>
+              {conceptos.map((concepto) => (
+                <li
+                  key={concepto.nombre}
+                >{`${concepto.nombre} ${concepto.tipo} ${concepto.valor}`}</li>
               ))}
-          </select>
-          <button>Añadir</button>
-        </form>
-        <h3 className={classes.conceptoTitle}>Conceptos:</h3>
-        <form
-          className={classes.conceptosContainer}
-          onSubmit={onAddConceptoHandler}
-        >
-          <div>
-            <label htmlFor="nombre-concepto">Nombre</label>
-            <input ref={nombreConceptoRef} id="nombre-concepto" type="text" />
+            </ul>
           </div>
-
-          <div>
-            <select ref={tipoConceptoRef} name="select">
-              <option value="ingreso">Ingreso</option>
-              <option value="egreso">Egreso</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="valor-concepto">Valor</label>
-            <input ref={valorConceptoRef} id="valor-concepto" type="number" />
-          </div>
-          <button>Agregar Concepto</button>
-        </form>
-        <ul>
-          {conceptosLocales
-            .slice(0)
-            .reverse()
-            .map((concepto) => (
-              <li>{concepto.nombre}</li>
-            ))}
-        </ul>
+        </div>
       </Route>
-      <div className={classes.rolesPagoContainer}>
-        <h2>Roles de Pago:</h2>
-        <RolesDePagoList>{rolesPagoItems}</RolesDePagoList>
-      </div>
+      {!showForm && (
+        <div className={classes.rolesPagoContainer}>
+          <h2>Roles de Pago:</h2>
+          <RolesDePagoList>
+            {rolesPagoItems &&
+              rolesPagoItems.map((rolPago) => {
+                return (
+                  <RolesDePagoListItem
+                    key={rolPago.id}
+                    desde={rolPago.desde}
+                    hasta={rolPago.hasta}
+                    ingresosTotal={rolPago.ingresosTotal}
+                    egresosTotal={rolPago.egresosTotal}
+                    neto={rolPago.neto}
+                    nombreEmpleado={rolPago.nombreEmpleado}
+                  />
+                );
+              })}
+          </RolesDePagoList>
+        </div>
+      )}
     </div>
   );
 };

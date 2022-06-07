@@ -15,8 +15,6 @@
 }
 
 .loginForm label + input {
-  margin-bottom: 1em;
-  margin-top: 0.4em;
 }
 
 .loginForm label {
@@ -25,4 +23,12 @@
 
 .loginForm button {
   padding: 0.2em 0.4em;
+}
+
+.loginForm > div > * {
+  display: block;
+}
+
+.loginForm > div + div {
+  margin-top: 1em;
 }

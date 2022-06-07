@@ -15,8 +15,8 @@ const LoginFormik = () => {
     validationSchema: Yup.object({
       user: Yup.string()
         .min(10, "El número de cédula debe tener 10 dígitos.")
-        .required(),
-      password: Yup.string().required(),
+        .required("Campo obligatorio."),
+      password: Yup.string().required("Campo obligatorio"),
     }),
   });
 
@@ -48,36 +48,43 @@ const LoginFormik = () => {
 
   return (
     <main className={classes.container}>
-      <form onSubmit={formik.handleSubmit}>
-        <label htmlFor="user" placeholder="número de cédula">
-          Usuario
-        </label>
-        <input
-          onBlur={formik.handleBlur}
-          value={formik.values.user}
-          onChange={formik.handleChange}
-          type="text"
-          name="user"
-          id="user"
-        />
-        {formik.errors.user && formik.touched.user ? (
-          <div>{formik.errors.user}</div>
-        ) : null}
-        <label htmlFor="pass" placeholder="contraseña">
-          Contraseña
-        </label>
-        <input
-          onBlur={formik.handleBlur}
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          type="password"
-          name="password"
-          id="password"
-        />
-        {formik.errors.password && formik.touched.password ? (
-          <div>{formik.errors.password}</div>
-        ) : null}
-        <button type="submit">Iniciar sesión</button>
+      <form className={classes.loginForm} onSubmit={formik.handleSubmit}>
+        <div>
+          <label htmlFor="user" placeholder="número de cédula">
+            Usuario
+          </label>
+          <input
+            onBlur={formik.handleBlur}
+            value={formik.values.user}
+            onChange={formik.handleChange}
+            type="text"
+            name="user"
+            id="user"
+          />
+          {formik.errors.user && formik.touched.user ? (
+            <div className="validation-error">{formik.errors.user}</div>
+          ) : null}
+        </div>
+        <div>
+          <label htmlFor="pass" placeholder="contraseña">
+            Contraseña
+          </label>
+          <input
+            onBlur={formik.handleBlur}
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            type="password"
+            name="password"
+            id="password"
+          />
+          {formik.errors.password && formik.touched.password ? (
+            <div className="validation-error">{formik.errors.password}</div>
+          ) : null}
+        </div>
+
+        <div>
+          <button type="submit">Iniciar sesión</button>
+        </div>
       </form>
     </main>
   );

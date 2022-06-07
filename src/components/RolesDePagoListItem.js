@@ -1,5 +1,21 @@
 import classes from "./RolesDePagoListItem.module.css";
 
+const formatMoney = (number) => {
+  const fixed = parseFloat(number).toFixed(2);
+  const money = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(fixed);
+  return money;
+};
+
+const formatDate = (dateString) => {
+  const parsed = new Date(dateString);
+  const year = parsed.getFullYear();
+  const month = parsed.getMonth().toString().padStart(2, "0");
+  return `${month}/${year}`;
+};
+
 const RolesDePagoListItem = (props) => {
   return (
     <li className={classes.item}>
@@ -7,14 +23,14 @@ const RolesDePagoListItem = (props) => {
         <p className={classes.nombre}>{props.nombreEmpleado}</p>
       ) : null}
       <div className={classes.fechasContainer}>
-        <p>Desde: {props.desde}</p>
-        <p>Hasta: {props.hasta}</p>
+        <p>Desde: {formatDate(props.desde)}</p>
+        <p>Hasta: {formatDate(props.hasta)}</p>
       </div>
       <div className={classes.totalesContainer}>
-        <p>Total ingresos: {props.ingresosTotal}</p>
-        <p>Total egresos: {props.egresosTotal}</p>
+        <p>Total ingresos: {formatMoney(props.ingresosTotal)}</p>
+        <p>Total egresos: {formatMoney(props.egresosTotal)}</p>
       </div>
-      <p>Neto a pagar: {props.neto}</p>
+      <p>Neto a pagar: {formatMoney(props.neto)}</p>
     </li>
   );
 };

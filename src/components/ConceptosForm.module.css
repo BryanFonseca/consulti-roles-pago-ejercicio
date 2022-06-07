@@ -1,0 +1,7 @@
+.form div {
+}
+
+.form div + div,
+.form button {
+  margin-top: 1em;
+}
