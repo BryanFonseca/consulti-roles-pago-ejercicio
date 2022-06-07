@@ -1,26 +1,29 @@
-import { useHistory } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
-import AppContext from "../context/app-context";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
+import { useContext } from "react";
+import AppContext from "../context/app-context";
 import classes from "./Login.module.css";
 
-const Login = () => {
-  const [userInput, setUserInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
-
-  const onChangeUserInputHandler = (e) => {
-    setUserInput(e.target.value);
-  };
-
-  const onChangePasswordInputHandler = (e) => {
-    setPasswordInput(e.target.value);
-  };
+const LoginFormik = () => {
+  const formik = useFormik({
+    initialValues: {
+      user: "",
+      password: "",
+    },
+    onSubmit: onLoginHandler,
+    validationSchema: Yup.object({
+      user: Yup.string()
+        .min(10, "El número de cédula debe tener 10 dígitos.")
+        .required(),
+      password: Yup.string().required(),
+    }),
+  });
 
   const ctx = useContext(AppContext);
 
-  const onLoginHandler = async (e) => {
+  async function onLoginHandler(values) {
     try {
-      e.preventDefault();
       const raw = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
@@ -28,8 +31,8 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user: userInput,
-          password: passwordInput,
+          user: values.user,
+          password: values.password,
         }),
       });
       if (!raw.ok) {
@@ -41,42 +44,43 @@ const Login = () => {
     } catch (err) {
       console.log(err.message);
     }
-  };
-
-  // retrieve from local storage using useEffect
-  const history = useHistory();
-
-  useEffect(() => {
-    if (ctx.isLoggedIn) {
-      history.replace("/roles-pago/");
-    }
-    setUserInput("");
-    setPasswordInput("");
-  }, [ctx.isLoggedIn, history]);
+  }
 
   return (
     <main className={classes.container}>
-      <form className={classes.loginForm} onSubmit={onLoginHandler}>
-        <label htmlFor="user">Usuario</label>
+      <form onSubmit={formik.handleSubmit}>
+        <label htmlFor="user" placeholder="número de cédula">
+          Usuario
+        </label>
         <input
-          onChange={onChangeUserInputHandler}
-          id="user"
+          onBlur={formik.handleBlur}
+          value={formik.values.user}
+          onChange={formik.handleChange}
           type="text"
-          value={userInput}
+          name="user"
+          id="user"
         />
-
-        <label htmlFor="pass">Contraseña</label>
+        {formik.errors.user && formik.touched.user ? (
+          <div>{formik.errors.user}</div>
+        ) : null}
+        <label htmlFor="pass" placeholder="contraseña">
+          Contraseña
+        </label>
         <input
-          onChange={onChangePasswordInputHandler}
-          id="pass"
+          onBlur={formik.handleBlur}
+          value={formik.values.password}
+          onChange={formik.handleChange}
           type="password"
-          value={passwordInput}
+          name="password"
+          id="password"
         />
-
-        <button>Iniciar Sesión</button>
+        {formik.errors.password && formik.touched.password ? (
+          <div>{formik.errors.password}</div>
+        ) : null}
+        <button type="submit">Iniciar sesión</button>
       </form>
     </main>
   );
 };
 
-export default Login;
+export default LoginFormik;

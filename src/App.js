@@ -15,6 +15,7 @@ function App() {
     <Switch>
       <Route path="/" exact>
         {/* if not logged in, go to the login page */}
+        <Redirect to="login" />
       </Route>
       <Route path="/login">
         {!isLoggedIn && <Login />}
