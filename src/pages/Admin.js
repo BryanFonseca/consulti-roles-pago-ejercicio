@@ -9,11 +9,13 @@ import classes from "./Admin.module.css";
 
 import BasicInfoForm from "../components/BasicInfoForm";
 import ConceptosForm from "../components/ConceptosForm";
+import useHttp from "../hooks/useHttp";
 
 const Admin = () => {
   const history = useHistory();
   const [showForm, setShowForm] = useState(false);
   const [isShownConceptosForm, setIsShownConceptosForm] = useState(true);
+
   const addRolPagoHandler = () => {
     setIsShownConceptosForm((prev) => !prev);
     if (isShownConceptosForm) {
@@ -26,20 +28,18 @@ const Admin = () => {
   };
 
   const ctx = useContext(AppContext);
-
   const [rolesPagoItems, setRolesPagoItems] = useState(null);
 
+  const { isLoading: isLoadingRolesPago, sendRequest: sendRequestRolesPago } =
+    useHttp();
   const updateRolesPago = () => {
-    fetch(`http://localhost:8080/roles-pago/all`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+    sendRequestRolesPago(
+      {
+        url: "http://localhost:8080/roles-pago/all",
+        method: "GET",
         Authorization: ctx.userInfo.token,
       },
-    }).then((raw) =>
-      raw.json().then(({ data: rolesPago }) => {
-        console.log(rolesPago);
+      ({ data: rolesPago }) => {
         setRolesPagoItems(
           rolesPago.reverse().map((rolPago) => {
             return {
@@ -53,28 +53,26 @@ const Admin = () => {
             };
           })
         );
-      })
+      }
     );
   };
 
   useEffect(updateRolesPago, []);
 
   const [empleados, setEmpleados] = useState(null);
+  const { isLoading, requestError, sendRequest } = useHttp();
 
   useEffect(() => {
-    fetch("http://localhost:8080/empleados/all", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+    sendRequest(
+      {
+        url: "http://localhost:8080/empleados/all",
+        method: "GET",
         Authorization: ctx.userInfo.token,
       },
-    })
-      .then((raw) => raw.json())
-      .then((data) => {
-        setEmpleados([...data]);
-        console.log(data);
-      });
+      (requestData) => {
+        setEmpleados([...requestData]);
+      }
+    );
   }, []);
 
   const onAddRolPagoHandler = (empleadoId, desde, hasta) => {
@@ -84,6 +82,7 @@ const Admin = () => {
       hasta: hasta,
       conceptos: [...conceptos],
     };
+
     fetch("http://localhost:8080/roles-pago/add", {
       method: "POST",
       headers: {
@@ -148,6 +147,7 @@ const Admin = () => {
       {!showForm && (
         <div className={classes.rolesPagoContainer}>
           <h2>Roles de Pago:</h2>
+          {isLoadingRolesPago ? <div>Cargando...</div> : null}
           <RolesDePagoList>
             {rolesPagoItems &&
               rolesPagoItems.map((rolPago) => {

@@ -4,6 +4,9 @@ import * as Yup from "yup";
 import { useContext } from "react";
 import AppContext from "../context/app-context";
 import classes from "./Login.module.css";
+import useHttp from "../hooks/useHttp";
+
+import { Button, TextField } from "@mui/material";
 
 const LoginFormik = () => {
   const formik = useFormik({
@@ -22,60 +25,51 @@ const LoginFormik = () => {
 
   const ctx = useContext(AppContext);
 
-  async function onLoginHandler(values) {
-    try {
-      const raw = await fetch("http://localhost:8080/auth/login", {
+  const { sendRequest, requestError, isLoading } = useHttp();
+
+  function onLoginHandler(values) {
+    sendRequest(
+      {
+        url: "http://localhost:8080/auth/login",
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+        body: {
           user: values.user,
           password: values.password,
-        }),
-      });
-      if (!raw.ok) {
-        throw new Error("Credenciales incorrectas.");
+        },
+      },
+      (data) => {
+        ctx.setUserInfo(data);
+        ctx.setIsLoggedIn(true);
       }
-      const data = await raw.json();
-      ctx.setUserInfo(data);
-      ctx.setIsLoggedIn(true);
-    } catch (err) {
-      console.log(err.message);
-    }
+    );
   }
 
   return (
     <main className={classes.container}>
       <form className={classes.loginForm} onSubmit={formik.handleSubmit}>
         <div>
-          <label htmlFor="user" placeholder="número de cédula">
-            Usuario
-          </label>
-          <input
+          <TextField
+            variant="standard"
             onBlur={formik.handleBlur}
             value={formik.values.user}
             onChange={formik.handleChange}
             type="text"
             name="user"
-            id="user"
+            label="Usuario"
           />
           {formik.errors.user && formik.touched.user ? (
             <div className="validation-error">{formik.errors.user}</div>
           ) : null}
         </div>
         <div>
-          <label htmlFor="pass" placeholder="contraseña">
-            Contraseña
-          </label>
-          <input
+          <TextField
+            variant="standard"
             onBlur={formik.handleBlur}
             value={formik.values.password}
             onChange={formik.handleChange}
             type="password"
             name="password"
-            id="password"
+            label="Contraseña"
           />
           {formik.errors.password && formik.touched.password ? (
             <div className="validation-error">{formik.errors.password}</div>
@@ -83,7 +77,9 @@ const LoginFormik = () => {
         </div>
 
         <div>
-          <button type="submit">Iniciar sesión</button>
+          <Button variant="contained" type="submit">
+            Iniciar sesión
+          </Button>
         </div>
       </form>
     </main>

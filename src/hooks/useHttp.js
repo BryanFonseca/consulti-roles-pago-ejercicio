@@ -1,30 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const useHttp = async (initialUrl, initialOptions) => {
-  const [url, setUrl] = useState(initialUrl);
-  const [options, setOptions] = useState(initialOptions);
-  const [data, setData] = useState();
-  const [error, setError] = useState();
-  const [loading, setLoading] = useState(false);
+const useHttp = () => {
+  const [isLoading, setIsLoading] = useState(null);
+  const [requestError, setRequestError] = useState(null);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(undefined);
+  // to send a post request this assumes you expect json
+  const sendRequest = async (options, manipulate) => {
+    try {
+      setIsLoading(true);
+      const rawData = await fetch(options.url, {
+        method: options.method ? options.method : "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: options.Authorization ? options.Authorization : null,
+        },
+        body:
+          options.method.toUpperCase() !== "GET"
+            ? JSON.stringify({
+                ...options.body,
+              })
+            : null,
+      });
 
-    async function fetchData() {
-      try {
-        const res = await fetch(url, options);
-        const json = await res.json();
-        setData(json);
-      } catch (e) {
-        setError(e);
+      if (!rawData.ok) {
+        throw new Error("Credenciales incorrectas.");
       }
-      setLoading(false);
-    }
-    fetchData();
-  }, [url, options]);
 
-  return { data, error, loading, setUrl, setOptions };
+      const data = await rawData.json();
+      setIsLoading(false);
+
+      if (data) {
+        manipulate(data);
+      } else {
+        throw new Error("No data.");
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setRequestError(err);
+    }
+  };
+
+  return { isLoading, requestError, sendRequest };
 };
 
 export default useHttp;

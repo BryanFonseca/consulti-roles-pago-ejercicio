@@ -2,22 +2,21 @@ import { useState, useContext, useEffect } from "react";
 import RolesDePagoList from "../components/RolesDePagoList";
 import RolesDePagoListItem from "../components/RolesDePagoListItem";
 import AppContext from "../context/app-context";
+import useHttp from "../hooks/useHttp";
 
 const Me = () => {
   const ctx = useContext(AppContext);
   const [rolesPagoItems, setRolesPagoItems] = useState(null);
 
+  const { isLoading, sendRequest, requestError } = useHttp();
   useEffect(() => {
-    fetch(`http://localhost:8080/roles-pago/${ctx.userInfo.id}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+    sendRequest(
+      {
+        method: "GET",
+        url: `http://localhost:8080/roles-pago/${ctx.userInfo.id}`,
         Authorization: ctx.userInfo.token,
       },
-    }).then((raw) =>
-      raw.json().then(({ data: rolesPago }) => {
-        console.log(rolesPago);
+      ({ data: rolesPago }) => {
         const rolesPagosItemsComponents = rolesPago.map((rolPago) => {
           return (
             <RolesDePagoListItem
@@ -31,12 +30,13 @@ const Me = () => {
           );
         });
         setRolesPagoItems(rolesPagosItemsComponents);
-      })
+      }
     );
   }, []);
 
   return (
     <div>
+      {isLoading ? <div>Cargando...</div> : null}
       <RolesDePagoList>{rolesPagoItems}</RolesDePagoList>
     </div>
   );
